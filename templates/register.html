@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kalkulator NFR & Debit Rencana</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand-area">
+        <div class="brand">NFR <span>IRIGASI</span></div>
+        <small>Kalkulator Kebutuhan Air Pertanian</small>
+    </div>
+
+    <div class="header-info">
+        <span>🌾 Sistem Analisis Irigasi</span>
+        <span class="online">● Online</span>
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <section class="heading">
+
+        <h1>Kalkulator NFR & Debit Rencana</h1>
+
+        <p>
+            Net Field Requirement & Debit Rencana (DR).
+            Pilih tanaman, fase pertumbuhan, jenis tanah,
+            dan sesuaikan data iklim bulanan.
+        </p>
+
+    </section>
+
+
+    <section class="dashboard">
+
+        <!-- DATA MASUKAN -->
+
+        <div class="panel input-panel">
+
+            <h3>Data Masukan</h3>
+
+            <form id="calculatorForm">
+
+                <div class="form-group">
+
+                    <label for="tanaman">Tanaman</label>
+
+                    <select id="tanaman" required>
+
+                        {% for nama in tanaman %}
+                        <option value="{{ nama }}"
+                            {% if nama == "Padi" %}selected{% endif %}>
+                            {{ nama }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="fase">Fase pertumbuhan</label>
+
+                    <select id="fase">
+
+                        <option value="awal">Awal (initial)</option>
+
+                        <option value="tengah" selected>
+                            Pertengahan (mid-season)
+                        </option>
+
+                        <option value="akhir">Akhir (late-season)</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="bulan">
+                        Pilih Bulan / Musim (Data Iklim Tahunan)
+                    </label>
+
+                    <select id="bulan">
+
+                        <option value="Januari">Januari (Musim Hujan)</option>
+                        <option value="Februari">Februari (Musim Hujan)</option>
+                        <option value="Maret">Maret (Musim Hujan)</option>
+                        <option value="April">April (Peralihan)</option>
+                        <option value="Mei">Mei (Peralihan)</option>
+                        <option value="Juni" selected>Juni (Musim Kemarau)</option>
+                        <option value="Juli">Juli (Musim Kemarau)</option>
+                        <option value="Agustus">Agustus (Musim Kemarau)</option>
+                        <option value="September">September (Musim Kemarau)</option>
+                        <option value="Oktober">Oktober (Peralihan)</option>
+                        <option value="November">November (Musim Hujan)</option>
+                        <option value="Desember">Desember (Musim Hujan)</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="tanah">
+                        Jenis Tanah (12 Klasifikasi USDA)
+                    </label>
+
+                    <select id="tanah">
+
+                        <option value="1">1. Pasir (Sand)</option>
+                        <option value="2">2. Pasir berlempung (Loamy Sand)</option>
+                        <option value="3">3. Lempung berpasir (Sandy Loam)</option>
+                        <option value="4" selected>4. Lempung (Loam)</option>
+                        <option value="5">5. Lempung berdebu (Silt Loam)</option>
+                        <option value="6">6. Debu (Silt)</option>
+                        <option value="7">7. Lempung liat berpasir (Sandy Clay Loam)</option>
+                        <option value="8">8. Lempung liat (Clay Loam)</option>
+                        <option value="9">9. Lempung liat berdebu (Silty Clay Loam)</option>
+                        <option value="10">10. Liat berpasir (Sandy Clay)</option>
+                        <option value="11">11. Liat berdebu (Silty Clay)</option>
+                        <option value="12">12. Liat (Clay)</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="input-grid">
+
+                    <div class="form-group">
+
+                        <label for="eto">ETo (mm/hari)</label>
+
+                        <input type="number"
+                               id="eto"
+                               value="4.5"
+                               min="0"
+                               step="any"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="hujan">Hujan efektif Re (mm/hari)</label>
+
+                        <input type="number"
+                               id="hujan"
+                               value="0.5"
+                               min="0"
+                               step="any"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="perkolasi">Perkolasi P (mm/hari)</label>
+
+                        <input type="number"
+                               id="perkolasi"
+                               value="2.5"
+                               min="0"
+                               step="any"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="wlr">Penggantian lapisan air WLR (mm/hari)</label>
+
+                        <input type="number"
+                               id="wlr"
+                               value="3.3"
+                               min="0"
+                               step="any"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="efisiensi">Efisiensi irigasi (%)</label>
+
+                        <input type="number"
+                               id="efisiensi"
+                               value="65"
+                               min="0.01"
+                               max="100"
+                               step="any"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="luas">Luas lahan (ha)</label>
+
+                        <input type="number"
+                               id="luas"
+                               value="1"
+                               min="0.01"
+                               step="any"
+                               required>
+
+                    </div>
+
+                </div>
+
+
+                <div id="errorMessage" class="error-message"></div>
+
+
+                <div class="button-group">
+
+                    <button type="submit" class="btn-primary">
+                        HITUNG NFR & DEBIT
+                    </button>
+
+                    <button type="reset" class="btn-reset">
+                        RESET DATA
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- HASIL PERHITUNGAN -->
+
+        <div class="panel result-panel">
+
+            <h3>Hasil Perhitungan</h3>
+
+            <p class="nfr-label">NFR (Kebutuhan Bersih)</p>
+
+            <div class="main-result">
+
+                <span id="nfr">10,70</span>
+
+                <small>mm/hari</small>
+
+            </div>
+
+
+            <div class="result-bar">
+
+                <div id="resultBar" style="width:53.5%"></div>
+
+            </div>
+
+
+            <div class="legend">
+
+                <span>● ETc</span>
+                <span>● P</span>
+                <span>● WLR</span>
+                <span>● Re (pengurangan)</span>
+
+            </div>
+
+
+            <hr>
+
+
+            <div class="result-list">
+
+                <div>
+                    <span>Kc terpilih</span>
+                    <strong id="kc">1,20</strong>
+                </div>
+
+                <div>
+                    <span>ETc = Kc × ETo</span>
+                    <strong id="etc">5,40 mm/hari</strong>
+                </div>
+
+                <div>
+                    <span>P dipakai</span>
+                    <strong id="p-hasil">2,50 mm/hari</strong>
+                </div>
+
+                <div>
+                    <span>WLR dipakai</span>
+                    <strong id="wlr-hasil">3,30 mm/hari</strong>
+                </div>
+
+                <div>
+                    <span>Hujan efektif</span>
+                    <strong id="hujan-hasil">0,50 mm/hari</strong>
+                </div>
+
+                <div>
+                    <span>Debit Rencana / DR per ha</span>
+                    <strong id="dr">1,906 L/dt/ha</strong>
+                </div>
+
+                <div>
+                    <span>Debit total</span>
+                    <strong id="debit-total">1,906 L/detik</strong>
+                </div>
+
+                <div>
+                    <span>Volume air per hari</span>
+                    <strong id="volume">107,00 m³/hari</strong>
+                </div>
+
+            </div>
+
+
+            <div class="formula">
+
+                <b>Rumus perhitungan:</b><br>
+
+                NFR = ETc + P + WLR - Re<br>
+
+                ETc = Kc × ETo<br>
+
+                DR = NFR / (8,64 × efisiensi)<br>
+
+                Debit total = DR × luas lahan<br>
+
+                Volume = NFR × 10 × luas (m³/hari)
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TABEL SEMUA TANAMAN -->
+
+    <section class="panel table-panel">
+
+        <div class="table-heading">
+
+            <div>
+
+                <h3>Tabel NFR & Debit Rencana Semua Tanaman</h3>
+
+                <p>
+                    Perbandingan kebutuhan air dan debit irigasi
+                    berdasarkan fase pertumbuhan tanaman.
+                </p>
+
+            </div>
+
+            <button type="button"
+                    id="downloadBtn"
+                    class="btn-download">
+
+                ↓ Unduh CSV
+
+            </button>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="irrigation-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th rowspan="2">No</th>
+                        <th rowspan="2">Tanaman</th>
+                        <th rowspan="2">Jenis</th>
+
+                        <th colspan="3">Koefisien Tanaman (Kc)</th>
+
+                        <th colspan="3">NFR (mm/hari)</th>
+
+                        <th colspan="3">Debit Rencana (L/detik/ha)</th>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Awal</th>
+                        <th>Tengah</th>
+                        <th>Akhir</th>
+
+                        <th>Awal</th>
+                        <th>Tengah</th>
+                        <th>Akhir</th>
+
+                        <th>Awal</th>
+                        <th>Tengah</th>
+                        <th>Akhir</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="tableBody">
+
+                    <tr>
+                        <td colspan="12" class="empty-row">
+                            Memuat hasil perhitungan...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="table-note">
+
+            <b>Keterangan:</b>
+
+            <p>NFR = ETc + P + WLR - Re.</p>
+
+            <p>DR = NFR / (8,64 × efisiensi irigasi).</p>
+
+            <p>
+                Debit total diperoleh dari debit per hektare
+                dikalikan luas lahan.
+            </p>
+
+            <p>
+                Nilai NFR dan debit pada tabel akan berubah
+                mengikuti data masukan kalkulator.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+
+        <b>Kalkulator Irigasi Berbasis Web</b>
+
+        <br>
+
+        Net Field Requirement & Debit Rencana
+
+        <br>
+
+        <span>Analisis Kebutuhan Air Tanaman Pertanian</span>
+
+    </footer>
+
+</main>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kalkulator NFR & Debit Rencana</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand-area">
+        <div class="brand">💧 IRIGASI<span>CALC</span></div>
+        <small>Kalkulator Kebutuhan Air Pertanian</small>
+    </div>
+
+    <div class="user-area">
+        <span>Halo, {{ username }}</span>
+
+        <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit" class="logout-link">Logout</button>
+        </form>
+    </div>
+
+</header>
+
+<main class="container">
+
+    <section class="heading">
+        <h1>Kalkulator NFR & Debit Rencana</h1>
+
+        <p>
+            Net Field Requirement & Debit Rencana (DR).
+            Pilih tanaman, fase pertumbuhan, jenis tanah,
+            dan sesuaikan data iklim bulanan.
+        </p>
+    </section>
+
+    <section class="dashboard">
+
+        <!-- DATA MASUKAN -->
+
+        <div class="panel input-panel">
+
+            <h3>Data Masukan</h3>
+
+            <form id="calculatorForm">
+
+                <div class="form-group">
+                    <label for="tanaman">Tanaman</label>
+
+                    <select id="tanaman" required>
+                        <option value="Padi">Padi</option>
+                        <option value="Jagung">Jagung</option>
+                        <option value="Kedelai">Kedelai</option>
+                        <option value="Kacang tanah">Kacang tanah</option>
+                        <option value="Kacang hijau">Kacang hijau</option>
+                        <option value="Cabai">Cabai</option>
+                        <option value="Tomat">Tomat</option>
+                        <option value="Bawang merah">Bawang merah</option>
+                        <option value="Kentang">Kentang</option>
+                        <option value="Kubis">Kubis</option>
+                        <option value="Semangka">Semangka</option>
+                        <option value="Tembakau">Tembakau</option>
+                        <option value="Tebu">Tebu</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fase">Fase pertumbuhan</label>
+
+                    <select id="fase">
+                        <option value="awal">Awal (initial)</option>
+                        <option value="tengah" selected>
+                            Pertengahan (mid-season)
+                        </option>
+                        <option value="akhir">Akhir (late-season)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bulan">Pilih Bulan / Musim</label>
+
+                    <select id="bulan">
+                        <option>Januari (Musim Hujan)</option>
+                        <option>Februari (Musim Hujan)</option>
+                        <option>Maret (Musim Hujan)</option>
+                        <option>April (Peralihan)</option>
+                        <option>Mei (Peralihan)</option>
+                        <option selected>Juni (Musim Kemarau)</option>
+                        <option>Juli (Musim Kemarau)</option>
+                        <option>Agustus (Musim Kemarau)</option>
+                        <option>September (Musim Kemarau)</option>
+                        <option>Oktober (Peralihan)</option>
+                        <option>November (Musim Hujan)</option>
+                        <option>Desember (Musim Hujan)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tanah">
+                        Jenis Tanah (12 Klasifikasi USDA)
+                    </label>
+
+                    <select id="tanah">
+
+                        <option value="1">1. Pasir (Sand)</option>
+                        <option value="2">2. Lempung berpasir</option>
+                        <option value="3">3. Lempung berpasir halus</option>
+                        <option value="4" selected>
+                            4. Lempung (Loam) (P: 2,5 mm/hari)
+                        </option>
+                        <option value="5">5. Lempung berdebu</option>
+                        <option value="6">6. Lempung liat</option>
+                        <option value="7">7. Liat (Clay)</option>
+                        <option value="8">8. Lempung berpasir liat</option>
+                        <option value="9">9. Lempung berdebu liat</option>
+                        <option value="10">10. Liat berpasir</option>
+                        <option value="11">11. Liat berdebu</option>
+                        <option value="12">12. Liat berat</option>
+
+                    </select>
+                </div>
+
+                <div class="input-grid">
+
+                    <div class="form-group">
+                        <label for="eto">ETo (mm/hari)</label>
+                        <input type="number" id="eto"
+                               value="4.5" min="0.01"
+                               step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hujan">Hujan efektif Re (mm/hari)</label>
+                        <input type="number" id="hujan"
+                               value="0.5" min="0"
+                               step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="perkolasi">Perkolasi P (mm/hari)</label>
+                        <input type="number" id="perkolasi"
+                               value="2.5" min="0"
+                               step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wlr">
+                            Penggantian lapisan air WLR (mm/hari)
+                        </label>
+                        <input type="number" id="wlr"
+                               value="3.3" min="0"
+                               step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="efisiensi">Efisiensi irigasi (%)</label>
+                        <input type="number" id="efisiensi"
+                               value="65" min="0.01"
+                               max="100" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="luas">Luas lahan (ha)</label>
+                        <input type="number" id="luas"
+                               value="1" min="0.01"
+                               step="any" required>
+                    </div>
+
+                </div>
+
+                <div class="button-group">
+
+                    <button type="submit" class="btn-primary">
+                        HITUNG NFR & DEBIT
+                    </button>
+
+                    <button type="reset" class="btn-reset">
+                        RESET DATA
+                    </button>
+
+                </div>
+
+                <div id="errorMessage" class="error-message"></div>
+
+            </form>
+
+        </div>
+
+
+        <!-- HASIL PERHITUNGAN -->
+
+        <div class="panel result-panel">
+
+            <h3>Hasil Perhitungan</h3>
+
+            <div class="nfr-label">NFR (Kebutuhan Bersih)</div>
+
+            <div class="main-result">
+                <span id="nfr">0,00</span>
+                <small>mm/hari</small>
+            </div>
+
+            <div class="result-bar">
+                <div id="resultBar"></div>
+            </div>
+
+            <div class="legend">
+                <span>● ETc</span>
+                <span>● P</span>
+                <span>● WLR</span>
+                <span>● Re (pengurangan)</span>
+            </div>
+
+            <hr>
+
+            <div class="result-list">
+
+                <div>
+                    <span>Kc terpilih</span>
+                    <strong id="kc">-</strong>
+                </div>
+
+                <div>
+                    <span>ETc = Kc × ETo</span>
+                    <strong id="etc">-</strong>
+                </div>
+
+                <div>
+                    <span>P dipakai</span>
+                    <strong id="p-hasil">-</strong>
+                </div>
+
+                <div>
+                    <span>WLR dipakai</span>
+                    <strong id="wlr-hasil">-</strong>
+                </div>
+
+                <div>
+                    <span>Hujan efektif</span>
+                    <strong id="hujan-hasil">-</strong>
+                </div>
+
+                <div>
+                    <span>Debit Rencana / DR per ha</span>
+                    <strong id="dr">-</strong>
+                </div>
+
+                <div>
+                    <span>Debit total</span>
+                    <strong id="debit-total">-</strong>
+                </div>
+
+                <div>
+                    <span>Volume air per hari</span>
+                    <strong id="volume">-</strong>
+                </div>
+
+            </div>
+
+            <div class="formula">
+
+                <p><b>Rumus NFR:</b> ETc + P + WLR - Re</p>
+
+                <p>
+                    <b>Rumus Debit Rencana:</b>
+                    NFR / (8,64 × efisiensi)
+                </p>
+
+                <p>
+                    <b>Rumus Volume:</b>
+                    NFR × 10 × luas lahan
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TABEL TANAMAN -->
+
+    <section class="panel table-panel">
+
+        <div class="table-heading">
+
+            <div>
+                <h3>Tabel NFR & Debit Rencana Semua Tanaman</h3>
+                <p>
+                    Perbandingan kebutuhan air berdasarkan fase pertumbuhan.
+                </p>
+            </div>
+
+            <button type="button" id="downloadBtn" class="btn-download">
+                ↓ Unduh CSV
+            </button>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Tanaman</th>
+                        <th>Jenis</th>
+                        <th>Kc (awal/tengah/akhir)</th>
+                        <th>NFR Awal</th>
+                        <th>NFR Tengah</th>
+                        <th>NFR Akhir</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tableBody">
+
+                    <tr>
+                        <td colspan="6" class="empty-row">
+                            Memuat data...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        Kalkulator Irigasi Berbasis Web
+        <br>
+        <span>Net Field Requirement & Debit Rencana</span>
+    </footer>
+
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
